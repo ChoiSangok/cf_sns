@@ -54,6 +54,7 @@ export class PostsService {
       likeCount: 0,
       commentCount: 0,
     });
+    d
 
     const newPost = await this.postsRepository.save(post);
 
