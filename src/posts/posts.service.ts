@@ -21,7 +21,7 @@ import { PostsModel } from './entities/posts.entity';
 //   commentCount: number;
 // }
 
-let posts: PostModel[] = [];
+// let posts: PostModel[] = [];
 
 @Injectable()
 export class PostsService {
@@ -60,8 +60,10 @@ export class PostsService {
     return newPost;
   }
 
-  updatePost(id: number, author?: string, title?: string, content?: string) {
-    const post = posts.find((post) => post.id === +id);
+  async updatePost(id: number, author: string, title: string, content: string) {
+    const post = await this.postsRepository.findOne({
+      where: { id },
+    });
 
     if (!post) {
       throw new NotFoundException();
@@ -77,17 +79,22 @@ export class PostsService {
       post.content = content;
     }
 
-    posts = posts.map((prevPost) => (prevPost.id === id ? post : prevPost));
-    return post;
+    const newPost = await this.postsRepository.save(post);
+    return newPost;
   }
 
-  deletePost(id: number) {
-    const post = posts.find((posts) => posts.id === id);
+  async deletePost(id: number) {
+    const post = await this.postsRepository.findOne({
+      where: {
+        id,
+      },
+    });
 
     if (!post) {
       throw new NotFoundException();
     }
 
-    posts = posts.filter((post) => post.id !== id);
+    await this.postsRepository.delete(id);
+    return id;
   }
 }
