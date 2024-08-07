@@ -30,11 +30,11 @@ export class PostsController {
   // post 생성
   @Post()
   postPosts(
-    @Body('author') author: string,
+    @Body('authorId') authorId: number,
     @Body('title') title: string,
     @Body('content') content: string,
   ) {
-    return this.postsService.createPosts(author, title, content);
+    return this.postsService.createPosts(authorId, title, content);
   }
 
   // 4) put /posts /id
@@ -46,7 +46,7 @@ export class PostsController {
     @Body('title') title?: string,
     @Body('content') content?: string,
   ) {
-    return this.postsService.updatePost(+id, author, title, content);
+    return this.postsService.updatePost(+id, title, content);
   }
 
   // 5) delete post id
