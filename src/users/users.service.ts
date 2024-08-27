@@ -49,4 +49,11 @@ export class UsersService {
       },
     });
   }
+
+  /**
+   * 전체조회
+   */
+  async getAllUsers() {
+    return this.userRepository.find();
+  }
 }
