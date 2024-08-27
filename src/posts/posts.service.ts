@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PostsModel } from './entities/posts.entity';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 /**
  * author: stinrg;
@@ -49,13 +51,12 @@ export class PostsService {
     return post;
   }
 
-  async createPosts(authorId: number, title: string, content: string) {
+  async createPosts(authorId: number, postDto: CreatePostDto) {
     const post = this.postsRepository.create({
       author: {
         id: authorId,
       },
-      title,
-      content,
+      ...postDto,
       likeCount: 0,
       commentCount: 0,
     });
@@ -65,7 +66,8 @@ export class PostsService {
     return newPost;
   }
 
-  async updatePost(id: number, title: string, content: string) {
+  async updatePost(id: number, postDto: UpdatePostDto) {
+    const { title, content } = postDto;
     const post = await this.postsRepository.findOne({
       where: { id },
     });

@@ -4,6 +4,7 @@ import { UsersModel } from 'src/users/entities/users.entity';
 import { HASH_ROUNDS, JWT_SECRET } from './const/auth.const';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import { RegisterUserDto } from './dto/register-user.dto';
 @Injectable()
 export class AuthService {
   /** * 기능 * 1. registerWithEmail *  - email, nickname, password, 입력 후 사용자 생성 *  - 생성완료후 accessToken / refreshToken 반환 *  - 가입 후 로그인 <- 방지를 위한 > 바로 로그인 설계 * * 2. loginWithEmail *  - email, password 입력하면 사용자 검증 진행 *  - 검증이 완료되면 accessToken / refreshToken 반환 * * 3. loginUser *  - 1, 2에서 필요한 accessToken / refreshToken 반환 * * 4. signToken *  - 3에서 필요한 accessToken 과 refreshToken 을 sign * * 5. authenticateWithEmailAndPassword *  - 2에서 로그인을 진행할때 필요한 기본적인 검증 *  1. 사용자 존재 확인 *  2. 비밀번호 맞는지 확인 *  3. 모두 통과 시 사용자 정보 반환 *  4. loginWithEmail에서 반환된 데이터를 기반으로 토큰 생성 * */
@@ -90,9 +91,13 @@ export class AuthService {
    * @returns
    */
   verifyToken(token: string) {
-    return this.jwtService.verify(token, {
-      secret: JWT_SECRET,
-    });
+    try {
+      return this.jwtService.verify(token, {
+        secret: JWT_SECRET,
+      });
+    } catch (error) {
+      throw new UnauthorizedException('토큰만료 ');
+    }
   }
 
   rotateToken(token: string, isRefreshToken: boolean) {
@@ -160,9 +165,7 @@ export class AuthService {
     return this.loginUser(existingUser);
   }
 
-  async registerWithEmail(
-    user: Pick<UsersModel, 'email' | 'password' | 'nickname'>,
-  ) {
+  async registerWithEmail(user: RegisterUserDto) {
     const hash = await bcrypt.hash(user.password, HASH_ROUNDS);
 
     const newUser = await this.usersService.createUser({

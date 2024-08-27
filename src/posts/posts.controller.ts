@@ -5,13 +5,15 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
-  Put,
   UseGuards,
-  Request,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
+import { User } from 'src/users/decorator/user.decorater';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -36,25 +38,20 @@ export class PostsController {
   // post 생성
   @Post()
   @UseGuards(AccessTokenGuard)
-  postPosts(
-    @Request() req: any,
-    @Body('title') title: string,
-    @Body('content') content: string,
-  ) {
-    const authorId = req.user.id;
-
-    return this.postsService.createPosts(authorId, title, content);
+  postPosts(@User('id') userId: number, @Body() body: CreatePostDto) {
+    return this.postsService.createPosts(userId, body);
   }
 
-  // 4) put /posts /:id
+  // 4) Patch /posts /:id
   // id 해당되는 post 변경
-  @Put(':id')
-  putPost(
+  @Patch(':id')
+  patchPost(
     @Param('id', ParseIntPipe) id: number,
-    @Body('title') title?: string,
-    @Body('content') content?: string,
+    @Body() body: UpdatePostDto,
+    // @Body('title') title?: string,
+    // @Body('content') content?: string,
   ) {
-    return this.postsService.updatePost(id, title, content);
+    return this.postsService.updatePost(id, body);
   }
 
   // 5) delete post id
