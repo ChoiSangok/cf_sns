@@ -14,8 +14,6 @@ import { Exclude } from 'class-transformer';
  * email:string
  * password: string
  * role: [RolesEnum.USER, RolesEnum.ADMIN]
- *
- *
  */
 @Entity()
 export class UsersModel extends BaseModel {
