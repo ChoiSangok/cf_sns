@@ -3,6 +3,10 @@ import { IsIn, IsNumber, IsOptional } from 'class-validator';
 export class PaginationPostDto {
   @IsNumber()
   @IsOptional()
+  page?: number;
+
+  @IsNumber()
+  @IsOptional()
   where__id_more_than?: number;
 
   @IsNumber()
