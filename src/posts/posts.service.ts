@@ -6,6 +6,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginationPostDto } from './dto/paginate-post.dto';
 import { HOST, PROTOCOL } from 'src/common/const/env.const';
+import { count } from 'console';
 
 /**
  * author: stinrg;
@@ -60,7 +61,36 @@ export class PostsService {
    * pagination
    * 1. 오름차순으로 정렬하는 pagination
    */
+
   async paginatePosts(pageDto: PaginationPostDto) {
+    if (pageDto.page) {
+      return this.pagePaginatePosts(pageDto);
+    } else {
+      return this.cursorPaginatePosts(pageDto);
+    }
+  }
+
+  async pagePaginatePosts(pageDto: PaginationPostDto) {
+    /**
+     * data: Data[],
+     * total: number,
+     * next: ??
+     */
+    const [posts, count] = await this.postsRepository.findAndCount({
+      skip: pageDto.take * (pageDto.page - 1),
+      take: pageDto.take,
+      order: {
+        createdAt: pageDto.order__createdAt,
+      },
+    });
+
+    return {
+      data: posts,
+      total: count,
+    };
+  }
+
+  async cursorPaginatePosts(pageDto: PaginationPostDto) {
     const where: FindOptionsWhere<PostsModel> = {};
 
     if (pageDto.where__id_less_than) {
