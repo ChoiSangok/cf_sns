@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, LessThan, MoreThan, Repository } from 'typeorm';
 import { PostsModel } from './entities/posts.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PaginationPostDto } from './dto/paginate-post.dto';
+import { HOST, PROTOCOL } from 'src/common/const/env.const';
 
 /**
  * author: stinrg;
@@ -32,10 +34,105 @@ export class PostsService {
     private readonly postsRepository: Repository<PostsModel>,
   ) {}
 
+  /**
+   *
+   * @returns 전체조회
+   */
   async getAllPost() {
     return this.postsRepository.find({
       relations: ['author'],
     });
+  }
+
+  /**
+   * 테스트용
+   */
+  async generatePosts(userId: number) {
+    for (let i = 0; i < 100; i++) {
+      await this.createPosts(userId, {
+        title: `임의 생성 ${i}`,
+        content: `임의 생성 ${i}`,
+      });
+    }
+  }
+
+  /**
+   * pagination
+   * 1. 오름차순으로 정렬하는 pagination
+   */
+  async paginatePosts(pageDto: PaginationPostDto) {
+    const where: FindOptionsWhere<PostsModel> = {};
+
+    if (pageDto.where__id_less_than) {
+      where.id = LessThan(pageDto.where__id_less_than);
+    } else if (pageDto.where__id_more_than) {
+      where.id = MoreThan(pageDto.where__id_more_than);
+    }
+
+    const posts = await this.postsRepository.find({
+      where,
+      order: {
+        createdAt: pageDto.order__createdAt,
+      },
+      take: pageDto.take,
+    });
+
+    /**
+     * 해당 포스트가 0개 이상이면
+     * 마지막 포스트 가져오고
+     * 아니면 null 반환
+     */
+    const lastItem =
+      posts.length > 0 && posts.length === pageDto.take
+        ? posts[posts.length - 1]
+        : null;
+
+    /**
+     * nextURL
+     */
+    const nextUrl = lastItem && new URL(`${PROTOCOL}://${HOST}/posts`);
+
+    if (nextUrl) {
+      /**
+       * dto의 카값 루핑
+       * 키값에 해당하는 벨류 존재하면
+       * param 에 그대로 붙여넣기
+       */
+      for (const key of Object.keys(pageDto)) {
+        if (pageDto[key]) {
+          if (key !== 'where__id_more_than' && key !== 'where__id_less_than') {
+            nextUrl.searchParams.append(key, pageDto[key]);
+          }
+        }
+      }
+
+      let key = null;
+      if (pageDto.order__createdAt === 'ASC') {
+        key = 'where__id_more_than';
+      } else {
+        key = 'where__id_less_than';
+      }
+
+      nextUrl.searchParams.append(key, lastItem.id.toString());
+    }
+
+    /**
+     * RESPOSNE
+     * data: []
+     * cursor: {
+     *    after: 마지막 데이터 id
+     * }
+     * count: 응답한 데이터 갯수
+     * next: 다음 요청 ㅅ용할 URL
+     */
+    return {
+      data: posts,
+      cursor: {
+        after: lastItem?.id ?? null,
+      },
+      count: posts.length,
+      next: nextUrl?.toString() ?? null,
+    };
   }
 
   async getPostById(id: number) {

@@ -13,7 +13,7 @@ export const lengthValidationMessage = (args: ValidationArguments) => {
    * 5) property > 검증되고 있는 객체의 프로퍼티 이름
    */
   if (args.constraints.length === 2) {
-    return `${args.property} 은 ${args.constraints[0]} ~ ${args.constraints[1]} 글자 입력 }`;
+    return `${args.property} 은 ${args.constraints[0]} ~ ${args.constraints[1]} 글자 입력 `;
   } else {
     return `${args.property}는 최소 ${args.constraints[0]}`;
   }
