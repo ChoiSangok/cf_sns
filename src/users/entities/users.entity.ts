@@ -36,9 +36,13 @@ export class UsersModel extends BaseModel {
   @IsString({
     message: stringValidationMessage,
   })
-  @IsEmail(null, {
-    message: emailValidationMessage,
-  })
+  @IsEmail(
+    {},
+    {
+      // 여기서 {}로 빈 객체를 전달하거나 첫 번째 매개변수를 생략할 수 있습니다.
+      message: emailValidationMessage,
+    },
+  )
   email: string;
 
   @Column()
