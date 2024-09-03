@@ -5,8 +5,12 @@ import { PostsModel } from './entities/posts.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginationPostDto } from './dto/paginate-post.dto';
-import { HOST, PROTOCOL } from 'src/common/const/env.const';
 import { CommonService } from 'src/common/common.service';
+import { ConfigService } from '@nestjs/config';
+import {
+  ENV_HOST_KEY,
+  ENV_PROTOCOL_KEY,
+} from 'src/common/const/env-keys.const';
 
 /**
  * author: stinrg;
@@ -34,6 +38,7 @@ export class PostsService {
     @InjectRepository(PostsModel)
     private readonly postsRepository: Repository<PostsModel>,
     private readonly commonService: CommonService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -129,6 +134,10 @@ export class PostsService {
     /**
      * nextURL
      */
+
+    const PROTOCOL = this.configService.get<string>(ENV_PROTOCOL_KEY);
+    const HOST = this.configService.get<string>(ENV_HOST_KEY);
+
     const nextUrl = lastItem && new URL(`${PROTOCOL}://${HOST}/posts`);
 
     if (nextUrl) {
