@@ -6,7 +6,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PaginationPostDto } from './dto/paginate-post.dto';
 import { HOST, PROTOCOL } from 'src/common/const/env.const';
-import { count } from 'console';
+import { CommonService } from 'src/common/common.service';
 
 /**
  * author: stinrg;
@@ -33,13 +33,14 @@ export class PostsService {
   constructor(
     @InjectRepository(PostsModel)
     private readonly postsRepository: Repository<PostsModel>,
+    private readonly commonService: CommonService,
   ) {}
 
   /**
    *
    * @returns 전체조회
    */
-  async getAllPost() {
+  async getAllPosts() {
     return this.postsRepository.find({
       relations: ['author'],
     });
@@ -63,11 +64,19 @@ export class PostsService {
    */
 
   async paginatePosts(pageDto: PaginationPostDto) {
-    if (pageDto.page) {
-      return this.pagePaginatePosts(pageDto);
-    } else {
-      return this.cursorPaginatePosts(pageDto);
-    }
+    return this.commonService.paginate(
+      pageDto,
+      this.postsRepository,
+      {
+        relations: ['author'],
+      },
+      'posts',
+    );
+    // if (pageDto.page) {
+    //   return this.pagePaginatePosts(pageDto);
+    // } else {
+    //   return this.cursorPaginatePosts(pageDto);
+    // }
   }
 
   async pagePaginatePosts(pageDto: PaginationPostDto) {
@@ -93,10 +102,10 @@ export class PostsService {
   async cursorPaginatePosts(pageDto: PaginationPostDto) {
     const where: FindOptionsWhere<PostsModel> = {};
 
-    if (pageDto.where__id_less_than) {
-      where.id = LessThan(pageDto.where__id_less_than);
-    } else if (pageDto.where__id_more_than) {
-      where.id = MoreThan(pageDto.where__id_more_than);
+    if (pageDto.where__id__less_than) {
+      where.id = LessThan(pageDto.where__id__less_than);
+    } else if (pageDto.where__id__more_than) {
+      where.id = MoreThan(pageDto.where__id__more_than);
     }
 
     const posts = await this.postsRepository.find({
@@ -130,7 +139,10 @@ export class PostsService {
        */
       for (const key of Object.keys(pageDto)) {
         if (pageDto[key]) {
-          if (key !== 'where__id_more_than' && key !== 'where__id_less_than') {
+          if (
+            key !== 'where__id__more_than' &&
+            key !== 'where__id__less_than'
+          ) {
             nextUrl.searchParams.append(key, pageDto[key]);
           }
         }
@@ -138,9 +150,9 @@ export class PostsService {
 
       let key = null;
       if (pageDto.order__createdAt === 'ASC') {
-        key = 'where__id_more_than';
+        key = 'where__id__more_than';
       } else {
-        key = 'where__id_less_than';
+        key = 'where__id__less_than';
       }
 
       nextUrl.searchParams.append(key, lastItem.id.toString());
