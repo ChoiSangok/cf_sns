@@ -27,4 +27,4 @@ export const POST_PUBLIC_IMAGE_PATH = join(
 
 // 임시 파일들을 저장할 폴더
 // {프로젝트 경로}/temp
-// export const TEMP_FOLDER_PATH = join(PUBLIC_FOLDER_PATH, TEMP_FOLDER_NAME);
+export const TEMP_FOLDER_PATH = join(PUBLIC_FOLDER_PATH, TEMP_FOLDER_NAME);
