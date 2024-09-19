@@ -113,12 +113,4 @@ export class PostsController {
   deleteId(@Param('id', ParseIntPipe) id: number) {
     return this.postsService.deletePost(id);
   }
-
-  // /posts/random
-  @Post('random')
-  @UseGuards(AccessTokenGuard)
-  async postPostsRandom(@User() user: UsersModel) {
-    await this.postsService.generatePosts(user.id);
-    return true;
-  }
 }

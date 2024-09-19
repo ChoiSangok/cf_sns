@@ -42,19 +42,6 @@ export class PostsService {
   }
 
   /**
-   * 테스트용
-   */
-  async generatePosts(userId: number) {
-    for (let i = 0; i < 100; i++) {
-      await this.createPosts(userId, {
-        title: `임의 생성 ${i}`,
-        content: `임의 생성 ${i}`,
-        images: [],
-      });
-    }
-  }
-
-  /**
    * pagination
    * 1. 오름차순으로 정렬하는 pagination
    */
