@@ -42,19 +42,6 @@ export class PostsService {
   }
 
   /**
-   * 테스트용
-   */
-  async generatePosts(userId: number) {
-    for (let i = 0; i < 100; i++) {
-      await this.createPosts(userId, {
-        title: `임의 생성 ${i}`,
-        content: `임의 생성 ${i}`,
-        images: [],
-      });
-    }
-  }
-
-  /**
    * pagination
    * 1. 오름차순으로 정렬하는 pagination
    */
@@ -177,8 +164,10 @@ export class PostsService {
     };
   }
 
-  async getPostById(id: number) {
-    const post = await this.postsRepository.findOne({
+  async getPostById(id: number, qr?: QueryRunner) {
+    const repository = this.getRepository(qr);
+
+    const post = await repository.findOne({
       ...DEFALUT_POST_FIND_OPTIONS,
       where: {
         id,
