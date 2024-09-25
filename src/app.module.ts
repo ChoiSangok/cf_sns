@@ -32,9 +32,6 @@ import { LogMiddleware } from './common/middleware/log.middleware';
   imports: [
     PostsModule,
     ServeStaticModule.forRoot({
-      // test.jpg
-      // http://localhost:3000/public/posts/test.png
-      // http://localhost:3000/posts/test.png
       rootPath: PUBLIC_FOLDER_PATH,
       serveRoot: '/public',
     }),
