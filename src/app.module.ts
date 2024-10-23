@@ -27,14 +27,13 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { PUBLIC_FOLDER_PATH } from './common/const/path.const';
 import { ImageModel } from './common/entity/image.entity';
 import { LogMiddleware } from './common/middleware/log.middleware';
+import { ChatsModule } from './chats/chats.module';
+import { ChatsModel } from './chats/entity/chats.entity';
 
 @Module({
   imports: [
     PostsModule,
     ServeStaticModule.forRoot({
-      // test.jpg
-      // http://localhost:3000/public/posts/test.png
-      // http://localhost:3000/posts/test.png
       rootPath: PUBLIC_FOLDER_PATH,
       serveRoot: '/public',
     }),
@@ -50,12 +49,13 @@ import { LogMiddleware } from './common/middleware/log.middleware';
       username: process.env[ENV_DB_USERNAME_KEY],
       password: process.env[ENV_DB_PASSWORD_KEY],
       database: process.env[ENV_DB_DATABASE_KEY],
-      entities: [PostsModel, UsersModel, ImageModel],
+      entities: [PostsModel, UsersModel, ImageModel, ChatsModel],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
     CommonModule,
+    ChatsModule,
   ],
   controllers: [AppController],
   providers: [
